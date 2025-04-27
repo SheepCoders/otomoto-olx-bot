@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ./backend
+    container_name: otomoto-olx-bot_app
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    depends_on:
+      - mysql
+  webserver:
+    image: nginx:alpine
+    container_name: otomoto-olx-bot_webserver
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - app
+
+  mysql:
+    image: mysql:8.0
+    container_name: otomoto-olx-bot_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: otomoto_olx_bot
+      MYSQL_USER: botuser
+      MYSQL_PASSWORD: botpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: otomoto-olx-bot_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: botuser
+      PMA_PASSWORD: botpass
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+
+  crawler:
+    build: ./crawler
+    container_name: otomoto-olx-bot_crawler
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql-data:
