@@ -14,6 +14,20 @@ class SendOffersEmails extends Command
 
     public function handle()
     {
+        $this->info('Starting crawler...');
+
+        $pythonPath = base_path('crawler-venv/bin/python');
+        $crawlerScript = base_path('crawler/crawler.py');
+
+        exec("$pythonPath $crawlerScript", $output, $result);
+
+        if ($result !== 0) {
+            $this->error('Crawler failed to run.');
+            return 1;
+        }
+
+        $this->info('Crawler finished, proceeding to send emails.');
+
         $users = Filter::select('user_email')->distinct()->get();
 
         foreach ($users as $user) {

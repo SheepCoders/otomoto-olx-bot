@@ -11,6 +11,8 @@ def get_db_connection(retries=10, delay=5):
                 user="botuser",
                 password="botpass",
                 database="otomoto_olx_bot"
+                charset='utf8mb4',
+                collation='utf8mb4_general_ci'
             )
             print("Connected to MySQL!")
             return db
