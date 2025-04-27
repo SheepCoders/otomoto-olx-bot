@@ -7,7 +7,7 @@ def get_db_connection(retries=10, delay=5):
     while retries > 0:
         try:
             db = mysql.connector.connect(
-                host="mysql",
+                host="localhost",
                 user="botuser",
                 password="botpass",
                 database="otomoto_olx_bot"
