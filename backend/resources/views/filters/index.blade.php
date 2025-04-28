@@ -47,7 +47,7 @@
                     </thead>
                     <tbody>
                         @foreach($filters as $filter)
-                            <tr class="border-b">
+                            <tr class="border-b" id="filter-{{ $filter->id }}">
                                 <td class="px-4 py-2">{{ ucfirst($filter->site) }}</td>
                                 <td class="px-4 py-2">{{ ucfirst($filter->category) }}</td>
                                 <td class="px-4 py-2">{{ $filter->price_from }}</td>
@@ -55,14 +55,11 @@
                                 <td class="px-4 py-2">{{ $filter->year_from }}</td>
                                 <td class="px-4 py-2">{{ $filter->year_to }}</td>
                                 <td class="px-4 py-2">
-                                    <form method="POST" action="{{ route('filters.delete', $filter->id) }}" onsubmit="return confirm('Na pewno usunąć ten filtr?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="py-1 px-3 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm">
-                                            Usuń
-                                        </button>
-                                    </form>
+                                    <button type="button"
+                                        onclick="deleteFilter({{ $filter->id }})"
+                                        class="py-1 px-3 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm">
+                                        Usuń
+                                    </button>
                                 </td>
                             </tr>
                         @endforeach
@@ -74,6 +71,39 @@
         @endif
 
     </div>
+
+    <script>
+        function deleteFilter(id) {
+            if (!confirm('Na pewno usunąć ten filtr?')) {
+                return;
+            }
+
+            fetch(`/my-filters/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Błąd podczas usuwania filtra.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert('Filtr został usunięty.');
+                const row = document.getElementById('filter-' + id);
+                if (row) {
+                    row.remove();
+                }
+            })
+            .catch(error => {
+                alert('Wystąpił błąd: ' + error.message);
+            });
+        }
+    </script>
 
 </body>
 </html>

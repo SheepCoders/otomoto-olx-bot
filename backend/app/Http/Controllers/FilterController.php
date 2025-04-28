@@ -42,9 +42,11 @@ class FilterController extends Controller
         return view('filters.index', compact('filters', 'email'));
     }
 
-    public function deleteFilter(Filter $filter)
+    public function deleteFilter($id)
     {
+        $filter = Filter::findOrFail($id);
         $filter->delete();
-        return back()->with('success', 'Filtr został usunięty.');
+
+        return response()->json(['message' => 'Filtr usunięty']);
     }
 }
