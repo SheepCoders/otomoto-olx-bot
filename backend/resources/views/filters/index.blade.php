@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="pl">
+
 <head>
     <meta charset="UTF-8">
     <title>Moje filtry</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
 
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-3xl">
@@ -38,6 +40,7 @@
                         <tr>
                             <th class="px-4 py-2 text-left">Serwis</th>
                             <th class="px-4 py-2 text-left">Kategoria</th>
+                            <th class="px-4 py-2 text-left">Szukany tekst</th>
                             <th class="px-4 py-2 text-left">Cena od</th>
                             <th class="px-4 py-2 text-left">Cena do</th>
                             <th class="px-4 py-2 text-left">Rok od</th>
@@ -50,13 +53,13 @@
                             <tr class="border-b" id="filter-{{ $filter->id }}">
                                 <td class="px-4 py-2">{{ ucfirst($filter->site) }}</td>
                                 <td class="px-4 py-2">{{ ucfirst($filter->category) }}</td>
+                                <td class="px-4 py-2">{{ $filter->search_text ?? '-' }}</td>
                                 <td class="px-4 py-2">{{ $filter->price_from }}</td>
                                 <td class="px-4 py-2">{{ $filter->price_to }}</td>
                                 <td class="px-4 py-2">{{ $filter->year_from }}</td>
                                 <td class="px-4 py-2">{{ $filter->year_to }}</td>
                                 <td class="px-4 py-2">
-                                    <button type="button"
-                                        onclick="deleteFilter({{ $filter->id }})"
+                                    <button type="button" onclick="deleteFilter({{ $filter->id }})"
                                         class="py-1 px-3 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm">
                                         Usuń
                                     </button>
@@ -86,24 +89,25 @@
                     'Content-Type': 'application/json'
                 }
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Błąd podczas usuwania filtra.');
-                }
-                return response.json();
-            })
-            .then(data => {
-                alert('Filtr został usunięty.');
-                const row = document.getElementById('filter-' + id);
-                if (row) {
-                    row.remove();
-                }
-            })
-            .catch(error => {
-                alert('Wystąpił błąd: ' + error.message);
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Błąd podczas usuwania filtra.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert('Filtr został usunięty.');
+                    const row = document.getElementById('filter-' + id);
+                    if (row) {
+                        row.remove();
+                    }
+                })
+                .catch(error => {
+                    alert('Wystąpił błąd: ' + error.message);
+                });
         }
     </script>
 
 </body>
+
 </html>

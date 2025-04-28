@@ -10,7 +10,7 @@ def get_db_connection(retries=10, delay=5):
                 host="localhost",
                 user="botuser",
                 password="botpass",
-                database="otomoto_olx_bot"
+                database="otomoto_olx_bot",
                 charset='utf8mb4',
                 collation='utf8mb4_general_ci'
             )
@@ -51,9 +51,14 @@ def save_offer(filter_id, title, price, url, image_url=None):
     cursor.close()
     db.close()
 
-def build_olx_url(category, price_from, price_to, year_from, year_to):
+def build_olx_url(category, search_text, price_from, price_to, year_from, year_to):
     base_url = "https://www.olx.pl/motoryzacja/"
     path = "ciezarowe/" if category == 'ciezarowe' else "budowlane/"
+    
+    if search_text:
+        search_text = search_text.strip().replace(' ', '-')
+        path += f"q-{search_text}/"
+
     params = []
     if price_from:
         params.append(f"search%5Bfilter_float_price:from%5D={price_from}")
@@ -64,11 +69,17 @@ def build_olx_url(category, price_from, price_to, year_from, year_to):
     if year_to:
         params.append(f"search%5Bfilter_float_year:to%5D={year_to}")
 
-    return base_url + path + "?" + "&".join(params)
+    url = base_url + path
+    if params:
+        url += "?" + "&".join(params)
+    return url
 
-def build_otomoto_url(category, price_from, price_to, year_from, year_to):
+def build_otomoto_url(category, search_text, price_from, price_to, year_from, year_to):
     path = "ciezarowe/" if category == 'ciezarowe' else "maszyny-budowlane/sprzedaz/"
     base_url = f"https://www.otomoto.pl/{path}od-{year_from or 0}"
+    if search_text:
+        search_text = search_text.strip().replace(' ', '-')
+        base_url += f"/q-{search_text}/"
     params = []
     if price_from:
         params.append(f"search%5Bfilter_float_price%3Afrom%5D={price_from}")
@@ -104,7 +115,7 @@ def fetch_olx(filter_id, url):
             else:
                 ad_url = 'https://' + href.lstrip('/')
 
-            img_url = img_tag['src'] if img_tag else None
+            img_url = img_tag.get('src') if img_tag else None
 
             save_offer(filter_id, title, price, ad_url, img_url)
 
@@ -142,10 +153,10 @@ def main():
     filters = get_filters()
     for f in filters:
         if f['site'] == 'olx':
-            url = build_olx_url(f['category'], f['price_from'], f['price_to'], f['year_from'], f['year_to'])
+            url = build_olx_url(f['category'], f['search_text'], f['price_from'], f['price_to'], f['year_from'], f['year_to'])
             fetch_olx(f['id'], url)
         elif f['site'] == 'otomoto':
-            url = build_otomoto_url(f['category'], f['price_from'], f['price_to'], f['year_from'], f['year_to'])
+            url = build_otomoto_url(f['category'], f['search_text'], f['price_from'], f['price_to'], f['year_from'], f['year_to'])
             fetch_otomoto(f['id'], url)
 
 if __name__ == "__main__":

@@ -18,6 +18,7 @@ class FilterController extends Controller
             'user_email' => 'required|email',
             'site' => 'required|in:olx,otomoto',
             'category' => 'required|in:ciezarowe,budowlane',
+            'search_text' => 'nullable|string|max:255',
             'price_from' => 'nullable|numeric',
             'price_to' => 'nullable|numeric',
             'year_from' => 'nullable|integer',
