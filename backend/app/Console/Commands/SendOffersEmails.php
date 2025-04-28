@@ -34,8 +34,10 @@ class SendOffersEmails extends Command
             $filters = Filter::where('user_email', $user->user_email)->get();
             $filterIds = $filters->pluck('id')->toArray();
 
+            $lastSentAt = $filters->min('last_sent_at') ?? now()->subDays(1);
+
             $offers = Offer::whereIn('filter_id', $filterIds)
-                ->where('created_at', '>=', now()->subDays(1))
+                ->where('created_at', '>', $lastSentAt)
                 ->get();
 
             if ($offers->count() > 0) {
