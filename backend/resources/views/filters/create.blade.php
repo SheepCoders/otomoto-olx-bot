@@ -28,6 +28,15 @@
             </div>
 
             <div>
+                <label for="parent_category" class="block text-sm font-medium text-gray-700">Kategoria główna</label>
+                <select id="parent_category" name="parent_category" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-md p-2">
+                    <option value="motoryzacja">Motoryzacja</option>
+                    <option value="elektronika">Elektronika</option>
+                </select>
+            </div>
+
+            <div>
                 <label for="site" class="block text-sm font-medium text-gray-700">Serwis</label>
                 <select id="site" name="site" required
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-md p-2">
@@ -38,9 +47,20 @@
 
             <div>
                 <label for="category" class="block text-sm font-medium text-gray-700">Kategoria</label>
-                <select name="category" required class="mt-1 block w-full rounded-md border-gray-300 shadow-md p-2">
-                    <option value="ciezarowe">Ciężarowe</option>
-                    <option value="budowlane">Budowlane</option>
+                <select name="category" required class="mt-1 block w-full rounded-md border-gray-300 shadow-md p-2"
+                    id="category">
+                    <!-- Motoryzacja categories -->
+                    <option value="osobowe" class="motoryzacja">Osobowe</option>
+                    <option value="ciezarowe" class="motoryzacja">Ciężarowe</option>
+                    <option value="budowlane" class="motoryzacja">Budowlane</option>
+                    <option value="dostawcze" class="motoryzacja">Dostawcze</option>
+                    <option value="motocykle" class="motoryzacja">Motocykle</option>
+                    <option value="przyczepy" class="motoryzacja">Przyczepy</option>
+                    <option value="rolnicze" class="rolnicze">Rolnicze</option>
+                    <!-- Elektronika categories -->
+                    <option value="komputery" class="elektronika">Komputery</option>
+                    <option value="telefony" class="elektronika">Telefony</option>
+                    <option value="podzespoly" class="elektronika">Podzespoły i części</option>
                 </select>
             </div>
 
@@ -63,7 +83,7 @@
                 </div>
             </div>
 
-            <div class="flex space-x-4">
+            <div id="year-wrapper" class="flex space-x-4">
                 <div class="w-1/2">
                     <label for="year_from" class="block text-sm font-medium text-gray-700">Rok od</label>
                     <input type="number" name="year_from"
@@ -88,6 +108,76 @@
             </div>
         </form>
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const parentCategorySelect = document.getElementById('parent_category');
+        const siteSelect = document.getElementById('site');
+        const searchTextWrapper = document.getElementById('search-text-wrapper');
+        const categorySelect = document.getElementById('category');
+        const yearWrapper = document.getElementById('year-wrapper');
+        const otomotoOption = document.querySelector('option[value="otomoto"]');
+
+        function toggleSearchText() {
+            if (parentCategorySelect.value === 'elektronika') {
+                yearWrapper.style.display = 'none';
+            } else {
+                yearWrapper.style.display = 'flex';
+            }
+        }
+
+        function toggleOtomoto() {
+            if (parentCategorySelect.value === 'motoryzacja') {
+                siteSelect.disabled = false;
+                siteSelect.value = 'olx';
+                otomotoOption.style.display = 'block';
+            } else {
+                siteSelect.disabled = false;
+                siteSelect.value = 'olx';
+                otomotoOption.style.display = 'none';
+            }
+        }
+
+        function toggleCategories() {
+            const motoryzacjaCategories = document.querySelectorAll('.motoryzacja');
+            const elektronikaCategories = document.querySelectorAll('.elektronika');
+            const rolniczeCategory = document.querySelector('option[value="rolnicze"]');
+
+            if (parentCategorySelect.value === 'elektronika') {
+                motoryzacjaCategories.forEach(option => {
+                    option.style.display = 'none';
+                });
+                elektronikaCategories.forEach(option => {
+                    option.style.display = 'block';
+                });
+                categorySelect.value = 'komputery';
+            } else if (parentCategorySelect.value === 'motoryzacja') {
+                elektronikaCategories.forEach(option => {
+                    option.style.display = 'none';
+                });
+                motoryzacjaCategories.forEach(option => {
+                    option.style.display = 'block';
+                });
+                rolniczeCategory.style.display = siteSelect.value === 'otomoto' ? 'block' : 'none';
+                categorySelect.value = 'osobowe';
+            }
+        }
+
+        parentCategorySelect.addEventListener('change', function () {
+            toggleSearchText();
+            toggleOtomoto();
+            toggleCategories();
+        });
+
+        siteSelect.addEventListener('change', function () {
+            toggleCategories();
+        });
+
+        toggleSearchText();
+        toggleOtomoto();
+        toggleCategories();
+    });
+</script>
 </body>
 
 </html>

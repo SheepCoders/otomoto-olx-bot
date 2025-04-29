@@ -52,8 +52,30 @@ def save_offer(filter_id, title, price, url, image_url=None):
     db.close()
 
 def build_olx_url(category, search_text, price_from, price_to, year_from, year_to):
-    base_url = "https://www.olx.pl/motoryzacja/"
-    path = "ciezarowe/" if category == 'ciezarowe' else "budowlane/"
+    base_url = "https://www.olx.pl/"
+    
+    # motoryzacja
+    if category == 'ciezarowe':
+        path = "motoryzacja/ciezarowe/"
+    elif category == 'budowlane':
+        path = "motoryzacja/budowlane/"
+    elif category == 'osobowe':
+        path = "motoryzacja/samochody/"
+    elif category == 'dostawcze':
+        path = "motoryzacja/dostawcze/"
+    elif category == 'motocykle':
+        path = "motoryzacja/motocykle-skutery/"
+    elif category == 'przyczepy':
+        path = "motoryzacja/przyczepy-i-naczepy/"
+    # elektronika
+    elif category == 'komputery':
+        path = "elektronika/komputery/"
+    elif category == 'telefony':
+        path = "elektronika/telefony/"
+    elif category == 'podzespoly':
+        path = "elektronika/komputery/podzespoly-i-czesci/"
+    else:
+        path = ""
     
     if search_text:
         search_text = search_text.strip().replace(' ', '-')
@@ -75,7 +97,23 @@ def build_olx_url(category, search_text, price_from, price_to, year_from, year_t
     return url
 
 def build_otomoto_url(category, search_text, price_from, price_to, year_from, year_to):
-    path = "ciezarowe/" if category == 'ciezarowe' else "maszyny-budowlane/sprzedaz/"
+    if category == 'ciezarowe':
+        path = "ciezarowe/"
+    elif category == 'budowlane':
+        path = "maszyny-budowlane/sprzedaz/"
+    elif category == 'osobowe':
+        path = "osobowe/"
+    elif category == 'dostawcze':
+        path = "dostawcze/"
+    elif category == 'motocykle':
+        path = "motocykle-i-quady/"
+    elif category == 'przyczepy':
+        path = "przyczepy/"
+    elif category == 'rolnicze':
+        path = "maszyny-rolnicze/"
+    else:
+        path = ""
+
     base_url = f"https://www.otomoto.pl/{path}od-{year_from or 0}"
     if search_text:
         search_text = search_text.strip().replace(' ', '-')
@@ -93,7 +131,11 @@ def build_otomoto_url(category, search_text, price_from, price_to, year_from, ye
 
 def fetch_olx(filter_id, url):
     print(f"Fetching OLX URL: {url}")
-    response = requests.get(url)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+        "Accept-Language": "pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7"
+    }
+    response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, 'html.parser')
     ads = soup.find_all('div', {'data-cy': 'l-card'})
 
@@ -129,7 +171,7 @@ def fetch_otomoto(filter_id, url):
     soup = BeautifulSoup(response.text, 'html.parser')
 
     ads = soup.find_all('article')
-    print(f"🔍 Found {len(ads)} articles on the page.")
+    print(f"Found {len(ads)} articles on the page.")
 
     for ad in ads:
         title_tag = ad.find('h2', class_='e4b361b0')

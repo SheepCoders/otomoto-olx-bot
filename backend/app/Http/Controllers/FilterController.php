@@ -14,20 +14,29 @@ class FilterController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'user_email' => 'required|email',
-            'site' => 'required|in:olx,otomoto',
-            'category' => 'required|in:ciezarowe,budowlane',
-            'search_text' => 'nullable|string|max:255',
-            'price_from' => 'nullable|numeric',
-            'price_to' => 'nullable|numeric',
-            'year_from' => 'nullable|integer',
-            'year_to' => 'nullable|integer',
-        ]);
+        try {
+            $validated = $request->validate([
+                'user_email' => 'required|email',
+                'site' => 'required|in:olx,otomoto',
+                'category' => 'required|string|max:255',
+                'search_text' => 'nullable|string|max:255',
+                'price_from' => 'nullable|numeric',
+                'price_to' => 'nullable|numeric',
+                'year_from' => 'nullable|integer',
+                'year_to' => 'nullable|integer',
+            ]);
 
-        Filter::create($validated);
+            Filter::create($validated);
 
-        return redirect()->route('filters.create')->with('success', 'Filtr zapisany!');
+            return redirect()->route('filters.create')->with('success', 'Filtr zapisany!');
+        } catch (\Exception $e) {
+            \Log::error('Error storing filter: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'input' => $request->all(),
+            ]);
+
+            return redirect()->route('filters.create')->with('error', 'Wystąpił błąd podczas zapisywania filtra.');
+        }
     }
 
     public function showForm()
